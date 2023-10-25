@@ -1,5 +1,8 @@
 <script setup>
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
+import Numero from './components/Numero.vue';
+import Operacao from './components/Operacao.vue';
+import ValorResultado from './components/ValorResultado.vue';
 
 const estado = reactive({
   valorUmAtual: 0,
@@ -7,29 +10,22 @@ const estado = reactive({
   operacao: 'soma',
 })
 
-const resultado = () => {
-  const {operacao} = estado;
+const calcular = (valorUm, valorDois, operacao) => {
+  valorUm = parseFloat(valorUm);
+  valorDois = parseFloat(valorDois);
 
   switch (operacao) {
-    case 'soma':
-      const resultadoSoma = parseFloat(estado.valorUmAtual) + parseFloat(estado.valorDoisAtual)
-      return resultadoSoma;
-    case 'subtracao':
-      const resultadoSubtracao = parseFloat(estado.valorUmAtual) - parseFloat(estado.valorDoisAtual)
-      return resultadoSubtracao;
-    case 'multiplicacao':
-      const resultadoMultiplicacao = parseFloat(estado.valorUmAtual) * parseFloat(estado.valorDoisAtual)
-      return resultadoMultiplicacao;
-    case 'divisao':
-      const resultadoDivisao = parseFloat(estado.valorUmAtual) / parseFloat(estado.valorDoisAtual)
-      return resultadoDivisao;
-    case 'resto':
-      const resultadoResto = parseFloat(estado.valorUmAtual) % parseFloat(estado.valorDoisAtual)
-      return resultadoResto;
-    default:
-      return 'inválido';
+    case 'soma': return valorUm + valorDois;
+    case 'subtracao': return valorUm - valorDois;
+    case 'multiplicacao': return valorUm * valorDois;
+    case 'divisao': return valorUm / valorDois;
+    case 'resto': return valorUm % valorDois;
+    default: return 'Inválido';
   }
 }
+const resultado = computed(() => {
+  return Math.round(calcular(estado.valorUmAtual, estado.valorDoisAtual, estado.operacao)*100)/100;
+});
 
 </script>
 
@@ -37,31 +33,12 @@ const resultado = () => {
   <div class="container border align-content-center mt-5">
     <h1 class="text-center">Calculadora</h1>
     <div class="row justify-content-around">
-      <div class="card col-md-4 text-center border-0">
-        <h3 class="card-title">Primeiro número:</h3>
-        <input class="rounded-pill card-body text-center" :value="estado.valorUmAtual" @change="evento => estado.valorUmAtual = evento.target.value" type="number" placeholder="0">
-      </div>
-      <div class="card col-md-1 text-center align-self-center mt-5 border-0">
-        <select class="card-title text-center rounded-pill p-2" @change="evento => estado.operacao = evento.target.value">
-          <option value="soma">+</option>
-          <option value="subtracao">-</option>
-          <option value="multiplicacao">x</option>
-          <option value="divisao">/</option>
-          <option value="resto">%</option>
-        </select>
-      </div>
-      <div class="card col-md-4 text-center border-0">
-        <h3 class="card-title">Segundo número:</h3>
-        <input class="rounded-pill card-body text-center" :value="estado.valorDoisAtual" @change="evento => estado.valorDoisAtual = evento.target.value" type="number" placeholder="0">
-      </div>
+      <Numero titulo="Primeiro número:" v-model="estado.valorUmAtual" />
+      <Operacao v-model="estado.operacao" />
+      <Numero titulo="Segundo número:" v-model="estado.valorDoisAtual" />
     </div>
     <div class="row justify-content-center mt-5">
-      <div class="col-md-4 justify-content-center d-flex">
-        <div class="card border-0" style="width: 18rem;">
-          <h2 class="text-center">Resultado</h2>
-          <h3 class="card-body rounded-pill border border-info text-center">{{ resultado() }}</h3>
-        </div>
-      </div>
+      <ValorResultado :resultado = "resultado" />
     </div>
   </div>
 </template>
